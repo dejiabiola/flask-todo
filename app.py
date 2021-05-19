@@ -3,22 +3,25 @@ from flask import Flask, json, request, abort
 from flask.helpers import url_for
 from flask.templating import render_template
 from flask_sqlalchemy import SQLAlchemy
+from flask_migrate import Migrate
 from werkzeug.utils import redirect
 
 app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = 'postgres://adedejiabiola@localhost:5432/todoapp'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 db = SQLAlchemy(app)
+migrate = Migrate(app, db)
 
 class Todo(db.Model):
   __tablename__ = 'todos'
   id = db.Column(db.Integer, primary_key=True)
   description = db.Column(db.String(), nullable=False)
+  completed = db.Column(db.Boolean, nullable=False, default=False)
 
   def __repl__(self):
     return f'<Todo {self.id} {self.description}>'
 
-db.create_all()
+# db.create_all()
 
 @app.route("/")
 def index():
