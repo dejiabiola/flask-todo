@@ -9,6 +9,29 @@
     .hidden {
       display: none;
     }
+
+    ul {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+        width: 300px;
+      }
+      li {
+        clear: both;
+      }
+      li button {
+        -webkit-appearance: none;
+        border: none;
+        outline: none;
+        color: red;
+        float: right;
+        cursor: pointer;
+        font-size: 20px;
+      }
+      .lists-wrapper, .todos-wrapper {
+        display: inline-block;
+        vertical-align: top;
+      }
   </style>
 </head>
 <body>
@@ -19,11 +42,34 @@
   <div id="error" class="hidden">Something went wrong!</div>
   <ul id='todos'>
     {% for item in data %}
-    <li>{{item.description}}</li>
+     <li><input type="checkbox" data-id="{{ item.id }}" class="check-completed" {% if item.completed %}checked{% endif %}> {{item.description}}</li>  
     {% endfor %}
   </ul>
 
   <script>
+    const checkboxes = document.querySelectorAll(".check-completed");
+    console.log(checkboxes)
+    checkboxes.forEach(checkbox => {
+      checkbox.onchange = (e) => {
+        console.log("e don change")
+        const todoId = e.target.dataset['id']
+        fetch(`/todos/${todoId}/set-completed`, {
+          method: "POST",
+          body: JSON.stringify({
+            'completed': e.target.checked
+          }),
+          headers: {
+            "Content-Type": "application/json"
+          }
+        }).then(res => {
+          document.getElementById('error').className = 'hidden'
+        }).catch(err => {
+          document.getElementById('error').className = ''
+        })
+      }
+    })
+
+
     document.getElementById('form').onsubmit = (e) => {
       e.preventDefault()
       fetch('/todos/create', {
